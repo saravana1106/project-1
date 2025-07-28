@@ -57,24 +57,20 @@ jobs:
     needs: [build, push]
     runs-on: ubuntu-latest
     steps:
-      - name: Send success email via SES
+      - name: Send Email Notification (on success)
         if: success()
         run: |
           aws ses send-email \
-            --from "saravana.rockz8@gmail.com" \
-            --destination "ToAddresses=$RECIPIENT_EMAIL" \
-            --message "Subject={Data=Build succeeded},Body={Text={Data=Docker image built: $IMAGE:${{ needs.build.outputs.sha_short }}}}" \
-            --region ${{ secrets.AWS_REGION }}
-        env:
-          RECIPIENT_EMAIL: ${{ secrets.SES_RECIPIENT }}
+            --from 'saravana.rockz8@gmail.com' \
+            --destination 'ToAddresses="saravanak3786@gmail.com"' \
+            --message 'Subject={Data="✅ Build Success - ${{ github.repository }}"},Body={Text={Data="Build for ${{ github.repository }} on branch `${{ github.ref_name}}` was successful!\n\nCommit: `${{ github.sha}}`\nWorkflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}}' \
+            --region Europe (Stockholm)
 
-      - name: Send failure email via SES
+      - name: Send Email Notification (on failure)
         if: failure()
         run: |
           aws ses send-email \
-            --from "saravana.rockz8@gmail.com" \
-            --destination "ToAddresses=$RECIPIENT_EMAIL" \
-            --message "Subject={Data=Build failed},Body={Text={Data=Build failed on $GITHUB_REF at SHA ${{ needs.build.outputs.sha_short }}}}" \
-            --region ${{ secrets.AWS_REGION }}
-        env:
-          RECIPIENT_EMAIL: ${{ secrets.SES_RECIPIENT }}
+            --from 'saravana.rockz8@gmail.com \
+            --destination 'ToAddresses="saravanak3786@gmail.com"' \
+            --message 'Subject={Data="❌ Build FAILED - ${{ github.repository }}"},Body={Text={Data="*ALERT:* Build for ${{ github.repository }} on branch `${{ github.ref_name}}` *FAILED!*\n\nCommit: `${{ github.sha}}`\n*Please review logs:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}}' \
+            --region Europe (Stockholm)
